@@ -207,37 +207,39 @@ abstract class AbstractBinarySearchTreeTest {
         }
     }
 
-    protected fun doIteratorRemoveTest() {
-        implementationTest { create().iterator().remove() }
+    private fun doIteratorRemoveTest(controlSet: MutableSet<Int>) {
+        println("Initial set: $controlSet")
+        val setToRemove = mutableSetOf<Int>()
         val random = Random()
-        for (iteration in 1..100) {
-            val controlSet = TreeSet<Int>()
-            val removeIndex = random.nextInt(20) + 1
-            var toRemove = 0
-            for (i in 1..20) {
-                val newNumber = random.nextInt(100)
-                controlSet.add(newNumber)
-                if (i == removeIndex) {
-                    toRemove = newNumber
+        var count = 0
+        while (count < controlSet.size) {
+            for (item in controlSet) {
+                if (random.nextBoolean()) {
+                    if (!setToRemove.contains(item)) {
+                        count++
+                    }
+                    setToRemove.add(item)
                 }
             }
-            println("Initial set: $controlSet")
-            val binarySet = create()
-            for (element in controlSet) {
-                binarySet += element
-            }
+        }
+        println("Elements to remove: $setToRemove")
+        val binarySet = create()
+        for (element in controlSet) {
+            binarySet += element
+        }
+        println("     Control set: $controlSet")
+        for (toRemove in setToRemove) {
             controlSet.remove(toRemove)
-            println("Control set: $controlSet")
-            println("Removing element $toRemove from the tree through the iterator...")
+            println("     Removing element: $toRemove")
             val iterator = binarySet.iterator()
             assertFailsWith<IllegalStateException>("Something was supposedly removed before the iteration started") {
                 iterator.remove()
             }
             var counter = binarySet.size
-            print("Iterating: ")
+            print("     Iterating: ")
             while (iterator.hasNext()) {
                 val element = iterator.next()
-                print("$element, ")
+                print(if (element == toRemove) "!$element! " else "$element ")
                 counter--
                 if (element == toRemove) {
                     iterator.remove()
@@ -246,6 +248,7 @@ abstract class AbstractBinarySearchTreeTest {
                     }
                 }
             }
+            println()
             assertEquals(
                 0, counter,
                 "BinarySearchTreeIterator.remove() changed iterator position: ${abs(counter)} elements were ${if (counter > 0) "skipped" else "revisited"}."
@@ -270,7 +273,30 @@ abstract class AbstractBinarySearchTreeTest {
                     "The tree has the element $element that is not in control set."
                 )
             }
-            println("All clear!")
+            println("     Control set: $controlSet")
+        }
+        println("All clear!\n")
+    }
+
+    protected fun doIteratorRemoveTest() {
+        doIteratorRemoveTest(mutableSetOf(24, 55, 81, 60, 99, 2, 96, 85, 21, 31, 56, 75, 79, 87, 78, 36, 46, 72))
+        doIteratorRemoveTest(mutableSetOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20))
+        doIteratorRemoveTest(mutableSetOf(20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1))
+        doIteratorRemoveTest(mutableSetOf(91, 54, 31, 24, 63, 80, 66, 45, 25, 95, 43, 14, 73, 12, 42, 33, 5))
+        doIteratorRemoveTest(mutableSetOf(5, 4, 6, 3, 7, 2, 8, 1, 9, 0, 10))
+        doIteratorRemoveTest(mutableSetOf(80, 60, 41, 81))
+        doIteratorRemoveTest(mutableSetOf(0, 2, 3))
+        doIteratorRemoveTest(mutableSetOf())
+
+        implementationTest { create().iterator().remove() }
+        val random = Random()
+        for (iteration in 1..100) {
+            val controlSet = mutableSetOf<Int>()
+            for (i in 1..20) {
+                val newNumber = random.nextInt(100)
+                controlSet.add(newNumber)
+            }
+            doIteratorRemoveTest(controlSet)
         }
     }
 
