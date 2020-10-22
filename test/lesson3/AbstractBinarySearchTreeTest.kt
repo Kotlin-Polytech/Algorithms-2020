@@ -290,7 +290,7 @@ abstract class AbstractBinarySearchTreeTest {
 
         implementationTest { create().iterator().remove() }
         val random = Random()
-        for (iteration in 1..100) {
+        for (iteration in 1..10) {
             val controlSet = mutableSetOf<Int>()
             for (i in 1..20) {
                 val newNumber = random.nextInt(100)
